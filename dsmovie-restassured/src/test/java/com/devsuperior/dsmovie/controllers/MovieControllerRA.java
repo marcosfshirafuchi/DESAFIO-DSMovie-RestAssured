@@ -12,12 +12,14 @@ import static org.hamcrest.Matchers.is;
 public class MovieControllerRA {
 
     private String existingMovieTitle;
+    private Long existingMovieId;
 
     @BeforeEach
     public void setUp() {
         //Endereço que vai estar hospedado o serviço
         baseURI = "http://localhost:8080";
         existingMovieTitle = "Matrix";
+        existingMovieId = 7L;
     }
 
 	/*Abaixo estão os testes de API que você deverá implementar utilizando o RestAssured. O mínimo para aprovação no desafio são 8 dos 10 testes.
@@ -77,6 +79,23 @@ public class MovieControllerRA {
 
     @Test
     public void findByIdShouldReturnMovieWhenIdExists() {
+        given()
+            .when()
+                //Está passando o endereço do endpoint
+                .get("/movies/{existingMovieId}", existingMovieId)
+            .then()
+                //Verifica o status code
+                .statusCode(200)
+                //Verifica o id
+                .body("id", is(7))
+                //Verifica o nome
+                .body("title", equalTo("Titanic"))
+                //Verifica a imagem
+                .body("image", equalTo("https://www.themoviedb.org/t/p/w533_and_h300_bestv2/yDI6D5ZQh67YU4r2ms8qcSbAviZ.jpg"))
+                //Verifica o count
+                .body("count", is(0))
+                //Verifica o score
+                .body("score", is(0.0F));
     }
 
     @Test
