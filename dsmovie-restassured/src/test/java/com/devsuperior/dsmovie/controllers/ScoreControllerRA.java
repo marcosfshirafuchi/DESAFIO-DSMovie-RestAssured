@@ -19,6 +19,7 @@ public class ScoreControllerRA {
 	private Long nonExistingMovieId, missingMovieId;
 	private String adminUsername, adminPassword, clientUsername, clientPassword;
 	private String adminToken, clientToken;
+	private Double scoreIsLessThanZero;
 
 	//Criando a request body do post
 	private Map<String, Object> putScoreInstance;
@@ -29,6 +30,7 @@ public class ScoreControllerRA {
 
 		nonExistingMovieId = 100L;
 		missingMovieId = null;
+		scoreIsLessThanZero = -5.0;
 
 		//Definindo adminUsername e adminPassword
 		adminUsername = "maria@gmail.com";
@@ -108,7 +110,24 @@ public class ScoreControllerRA {
 				.statusCode(422);
 	}
 
+	//●	saveScoreShouldReturnUnprocessableEntityWhenScoreIsLessThanZero
 	@Test
 	public void saveScoreShouldReturnUnprocessableEntityWhenScoreIsLessThanZero() throws Exception {
+		putScoreInstance.put("score", scoreIsLessThanZero);
+		JSONObject newScore = new JSONObject(putScoreInstance);
+		given()
+			//Definindo o cabeçalho da requisição do header do método post do endpoint Login
+			//Tipo da informação
+			.header("Content-type","application/json")
+			//Buscando o token de administrador
+			.header("Authorization","Bearer " + adminToken)
+			.body(newScore.toString())
+			.contentType(ContentType.JSON)
+			.accept(ContentType.JSON)
+		.when()
+			.put("/scores")
+		.then()
+			//Verificando a resposta da requisição
+			.statusCode(422);
 	}
 }
