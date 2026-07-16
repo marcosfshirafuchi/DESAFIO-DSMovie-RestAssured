@@ -19,8 +19,8 @@ public class MovieControllerRA {
 
     private String existingMovieTitle, blankMovieTitle;
     private Long existingMovieId, nonExistingMovieId;
-    private String adminUsername, adminPassword;
-    private String adminToken;
+    private String adminUsername, adminPassword, clientUsername, clientPassword;
+    private String adminToken, clientToken;
 
     //Criando a request body do post
     private Map<String, Object> postMovieInstance;
@@ -37,9 +37,14 @@ public class MovieControllerRA {
         //Definindo adminUsername e adminPassword
         adminUsername = "maria@gmail.com";
         adminPassword = "123456";
+        //Definindo clientUsername e clientPassword
+        clientUsername = "alex@gmail.com";
+        clientPassword = "123456";
 
         //Obtendo o token de administrador
         adminToken = TokenUtil.obtainAccessToken(adminUsername, adminPassword);
+        //Obtendo o token de cliente
+        clientToken = TokenUtil.obtainAccessToken(clientUsername, clientPassword);
 
         //Definindo o postMovieInstance
         postMovieInstance = new HashMap<>();
@@ -142,11 +147,13 @@ public class MovieControllerRA {
     @Test
     public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndBlankTitle() throws JSONException {
         postMovieInstance.put("title",blankMovieTitle);
+        //Criar o objeto JSON
         JSONObject newMovie = new JSONObject(postMovieInstance);
         given()
             //Definindo o cabeçalho da requisição do header do método post do endpoint Login
             //Tipo da informação
             .header("Content-type","application/json")
+            //Buscando o token de administrador
             .header("Authorization","Bearer " + adminToken)
             .body(newMovie.toString())
             .contentType(ContentType.JSON)
@@ -159,8 +166,26 @@ public class MovieControllerRA {
             .statusCode(422);
     }
 
+    //●	insertShouldReturnForbiddenWhenClientLogged
     @Test
     public void insertShouldReturnForbiddenWhenClientLogged() throws Exception {
+        //Criar o objeto JSON
+        JSONObject newMovie = new JSONObject(postMovieInstance);
+        given()
+            //Definindo o cabeçalho da requisição do header do método post do endpoint Login
+            //Tipo da informação
+            .header("Content-type","application/json")
+            //Buscando o token de client
+            .header("Authorization","Bearer " + clientToken)
+            .body(newMovie.toString())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+        .when()
+            //Está passando o endpoint para testar
+            .post("/movies")
+        .then()
+            //Verificando a resposta da requisição
+            .statusCode(403);
     }
 
     @Test
