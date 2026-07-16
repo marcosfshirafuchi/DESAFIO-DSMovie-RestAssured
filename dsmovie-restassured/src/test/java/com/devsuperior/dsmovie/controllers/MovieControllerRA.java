@@ -1,8 +1,14 @@
 package com.devsuperior.dsmovie.controllers;
 
+import com.devsuperior.dsmovie.tests.TokenUtil;
+import io.restassured.http.ContentType;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
@@ -11,16 +17,37 @@ import static org.hamcrest.Matchers.is;
 
 public class MovieControllerRA {
 
-    private String existingMovieTitle;
+    private String existingMovieTitle, blankMovieTitle;
     private Long existingMovieId, nonExistingMovieId;
+    private String adminUsername, adminPassword;
+    private String adminToken;
+
+    //Criando a request body do post
+    private Map<String, Object> postMovieInstance;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws JSONException {
         //Endereço que vai estar hospedado o serviço
         baseURI = "http://localhost:8080";
         existingMovieTitle = "Matrix";
         existingMovieId = 7L;
         nonExistingMovieId = 100L;
+        blankMovieTitle = "";
+
+        //Definindo adminUsername e adminPassword
+        adminUsername = "maria@gmail.com";
+        adminPassword = "123456";
+
+        //Obtendo o token de administrador
+        adminToken = TokenUtil.obtainAccessToken(adminUsername, adminPassword);
+
+        //Definindo o postMovieInstance
+        postMovieInstance = new HashMap<>();
+        postMovieInstance.put("title","Test Movie");
+        postMovieInstance.put("score",0.0);
+        postMovieInstance.put("count",0);
+        postMovieInstance.put("image","https://www.themoviedb.org/t/p/w533_and_h300_bestv2/jBJWaqoSCiARWtfV0GlqHrcdidd.jpg");
+
     }
 
 	/*Abaixo estão os testes de API que você deverá implementar utilizando o RestAssured. O mínimo para aprovação no desafio são 8 dos 10 testes.
@@ -111,8 +138,25 @@ public class MovieControllerRA {
                 .statusCode(404);
     }
 
+    //●	insertShouldReturnUnprocessableEntityWhenAdminLoggedAndBlankTitle
     @Test
     public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndBlankTitle() throws JSONException {
+        postMovieInstance.put("title",blankMovieTitle);
+        JSONObject newMovie = new JSONObject(postMovieInstance);
+        given()
+            //Definindo o cabeçalho da requisição do header do método post do endpoint Login
+            //Tipo da informação
+            .header("Content-type","application/json")
+            .header("Authorization","Bearer " + adminToken)
+            .body(newMovie.toString())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+        .when()
+            //Está passando o endpoint para testar
+            .post("/movies")
+        .then()
+            //Verificando a resposta da requisição
+            .statusCode(422);
     }
 
     @Test
