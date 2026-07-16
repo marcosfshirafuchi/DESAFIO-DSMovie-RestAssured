@@ -20,7 +20,7 @@ public class MovieControllerRA {
     private String existingMovieTitle, blankMovieTitle;
     private Long existingMovieId, nonExistingMovieId;
     private String adminUsername, adminPassword, clientUsername, clientPassword;
-    private String adminToken, clientToken;
+    private String adminToken, clientToken, invalidToken;
 
     //Criando a request body do post
     private Map<String, Object> postMovieInstance;
@@ -45,6 +45,8 @@ public class MovieControllerRA {
         adminToken = TokenUtil.obtainAccessToken(adminUsername, adminPassword);
         //Obtendo o token de cliente
         clientToken = TokenUtil.obtainAccessToken(clientUsername, clientPassword);
+        //Obtendo o token inválido
+        invalidToken = adminToken + "xpto"; // Invalid Token
 
         //Definindo o postMovieInstance
         postMovieInstance = new HashMap<>();
@@ -188,7 +190,25 @@ public class MovieControllerRA {
             .statusCode(403);
     }
 
+    //●	insertShouldReturnUnauthorizedWhenInvalidToken
     @Test
     public void insertShouldReturnUnauthorizedWhenInvalidToken() throws Exception {
+        //Criar o objeto JSON
+        JSONObject newMovie = new JSONObject(postMovieInstance);
+        given()
+            //Definindo o cabeçalho da requisição do header do método post do endpoint Login
+            //Tipo da informação
+            .header("Content-type","application/json")
+            //Buscando o token inválido
+            .header("Authorization","Bearer " + invalidToken)
+            .body(newMovie.toString())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+        .when()
+            //Está passando o endpoint para testar
+            .post("/movies")
+        .then()
+            //Verificando a resposta da requisição
+            .statusCode(401);
     }
 }
