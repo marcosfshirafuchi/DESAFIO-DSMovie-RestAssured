@@ -17,6 +17,17 @@ import static org.hamcrest.Matchers.is;
 
 public class MovieControllerRA {
 
+    /**
+     * <h1> DEVSUPERIOR - Java Spring Expert - Capítulo: Testes de API com MockMVC e RestAssured</h1>
+     * DESAFIO: DESAFIO DSMovie RestAssured
+     * <p>
+     * <b>Note:</b> Desenvolvido na linguagem Java.
+     *
+     * @author Marcos Ferreira Shirafuchi
+     * @version 1.0
+     * @since 16/07/2026
+     */
+
     private String existingMovieTitle, blankMovieTitle;
     private Long existingMovieId, nonExistingMovieId;
     private String adminUsername, adminPassword, clientUsername, clientPassword;
